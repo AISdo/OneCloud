@@ -53,4 +53,5 @@ onecloud/
 │   ├── playbooks/
 │   └── inventory_opennebula.yml
 ├── grafana_dashboards/  # Paneles personalizados para Grafana
+├── docs/                # Memoria y anexos del TFG
 └── README.md
