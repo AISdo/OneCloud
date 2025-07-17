@@ -1,0 +1,58 @@
+---
+- name: Configurar Ubuntu en OpenNebula
+  hosts: sgx-vm_* # ← 'ungrouped', o un patrón como 'sgx-vm_*'
+
+  become: yes
+  vars:
+    # credenciales SSH
+    ansible_user: root                   # usuario dentro de la VM
+    ansible_ssh_private_key_file: ~/.ssh/id_rsa
+    # si sudo pide password
+    ansible_become_password: 123456
+    ansible_python_interpreter: /usr/bin/python3
+    
+  tasks:
+    - name: Actualizar caché APT
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Instalar paquetes base
+      ansible.builtin.apt:
+        name:
+          - git
+          - curl
+          - htop
+        state: present
+
+    - name: Crear usuario administrador adicional
+      ansible.builtin.user:
+        name: adminuser
+        groups: sudo
+        shell: /bin/bash
+        create_home: yes
+
+    - name: Configurar acceso SSH para usuario administrador adicional
+      ansible.posix.authorized_key:
+        user: adminuser
+        state: present
+        key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+    - name: Configurar zona horaria del servidor
+      community.general.timezone:
+        name: Europe/Madrid
+
+    - name: Habilitar actualizaciones automáticas del sistema
+      ansible.builtin.apt:
+        name: unattended-upgrades
+        state: present
+
+    - name: Copiar configuración de unattended-upgrades
+      ansible.builtin.template:
+        src: 50unattended-upgrades.j2
+        dest: /etc/apt/apt.conf.d/50unattended-upgrades
+
+    - name: Reiniciar servicio SSH
+      ansible.builtin.service:
+        name: ssh
+        state: restarted

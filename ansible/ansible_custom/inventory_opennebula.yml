@@ -1,0 +1,6 @@
+plugin: community.general.opennebula
+api_url: http://192.168.1.177:2633/RPC2
+api_username: oneadmin
+api_password: oneadmin1
+hostname: v4_first_ip
+

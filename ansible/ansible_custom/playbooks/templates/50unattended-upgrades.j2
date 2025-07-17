@@ -1,0 +1,20 @@
+// Configuración de orígenes permitidos para actualizaciones automáticas
+Unattended-Upgrade::Allowed-Origins {
+    // Actualizaciones generales del sistema operativo
+    "${distro_id}:${distro_codename}";
+
+    // Actualizaciones críticas de seguridad
+    "${distro_id}:${distro_codename}-security";
+
+    // Actualizaciones del soporte extendido (Extended Security Maintenance - ESM)
+    "${distro_id}ESM:${distro_codename}";
+
+    // Actualizaciones recomendadas de estabilidad y rendimiento
+    "${distro_id}:${distro_codename}-updates";
+};
+
+// Permite reiniciar automáticamente el sistema tras aplicar actualizaciones que lo requieran
+Unattended-Upgrade::Automatic-Reboot "true";
+
+// Hora del día en que se realizará el reinicio automático (formato 24 horas)
+Unattended-Upgrade::Automatic-Reboot-Time "03:00";

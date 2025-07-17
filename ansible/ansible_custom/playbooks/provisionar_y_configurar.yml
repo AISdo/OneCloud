@@ -1,0 +1,57 @@
+
+- name: 1) Provisionar VMs
+  hosts: localhost
+  gather_facts: no
+  collections:
+    - community.general
+  tasks:
+    - name: Instanciar 1 VM desde plantilla confidential computing
+      community.general.one_vm:
+        api_url: http://192.168.1.177:2633/RPC2
+        api_username: oneadmin
+        api_password: oneadmin1
+        template_id: 32
+        count: 1
+        labels:
+          - ubuntu
+          - web
+          - ansible
+      register: new_vms
+      run_once: true # una unica ejecucion
+
+    - name: Esperar a que arranquen
+      community.general.one_vm:
+        instance_ids: "{{ new_vms.instances_ids }}"
+        state: running
+        api_url: http://192.168.1.177:2633/RPC2
+      register: ready
+      retries: 20
+      delay: 15
+      until: (ready.instances | selectattr('state', 'equalto', 'ACTIVE') | list | length) == (new_vms.instances_ids | length)
+    
+    - name: Forzar recarga del inventario (nuevas VMs)
+      meta: refresh_inventory
+      run_once: true
+
+
+# ← NUEVO PLAY, MISMO NIVEL DE RAÍZ
+- name: 2) Configurar las nuevas VMs
+  hosts: ubuntu:&web:&ansible        # intersección de etiquetas
+  become: yes
+  vars:
+    ansible_user: root
+    ansible_ssh_private_key_file: ~/.ssh/id_rsa
+    ansible_python_interpreter: /usr/bin/python3
+  tasks:
+    - name: Actualizar caché APT
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+        
+    - name: Instalar paquetes base
+      ansible.builtin.apt:
+        name:
+          - git
+          - curl
+          - htop
+        state: present

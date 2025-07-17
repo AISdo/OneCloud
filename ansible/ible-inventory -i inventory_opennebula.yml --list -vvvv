@@ -1,0 +1,105 @@
+> COMMUNITY.GENERAL.OPENNEBULA    (/home/alex/.ansible/collections/ansible_collections/community/general/plugins/inventory/opennebula.py)
+
+        Get inventory hosts from OpenNebula cloud. Uses an YAML configuration file ending with either `opennebula.yml' or `opennebula.yaml' to set parameter values. Uses O(api_authfile), `~/.one/one_auth', or E(ONE_AUTH)
+        pointing to a OpenNebula credentials file.
+
+OPTIONS (= is mandatory):
+
+- api_authfile
+        If both O(api_username) or O(api_password) are not set, then it will try authenticate with ONE auth file. Default path is `~/.one/one_auth'.
+        Set environment variable E(ONE_AUTH) to override this path.
+        [Default: (null)]
+        set_via:
+          env:
+          - name: ONE_AUTH
+        
+        type: string
+
+- api_password
+        Password or a token of the user to login into OpenNebula RPC server.
+        If not set, the value of the E(ONE_PASSWORD) environment variable is used.
+        [Default: (null)]
+        set_via:
+          env:
+          - name: ONE_PASSWORD
+        
+        type: string
+
+= api_url
+        URL of the OpenNebula RPC server.
+        It is recommended to use HTTPS so that the username/password are not transferred over the network unencrypted.
+        If not set then the value of the E(ONE_URL) environment variable is used.
+
+        set_via:
+          env:
+          - name: ONE_URL
+        
+        type: string
+
+- api_username
+        Name of the user to login into the OpenNebula RPC server. If not set then the value of the E(ONE_USERNAME) environment variable is used.
+        [Default: (null)]
+        set_via:
+          env:
+          - name: ONE_USERNAME
+        
+        type: string
+
+- compose
+        Create vars from jinja2 expressions.
+        [Default: {}]
+        type: dict
+
+- filter_by_label
+        Only return servers filtered by this label.
+        [Default: (null)]
+        type: string
+
+- group_by_labels
+        Create host groups by vm labels
+        [Default: True]
+        type: bool
+
+- groups
+        Add hosts to group based on Jinja2 conditionals.
+        [Default: {}]
+        type: dict
+
+- hostname
+        Field to match the hostname. Note V(v4_first_ip) corresponds to the first IPv4 found on VM.
+        (Choices: v4_first_ip, v6_first_ip, name)[Default: v4_first_ip]
+        type: string
+
+- keyed_groups
+        Add hosts to group based on the values of a variable.
+        [Default: []]
+        type: list
+
+= plugin
+        Token that ensures this is a source file for the 'opennebula' plugin.
+        (Choices: community.general.opennebula)
+        type: string
+
+- strict
+        If `yes' make invalid entries a fatal error, otherwise skip and continue.
+        Since it is possible to use facts in the expressions they might not always be available and we ignore those errors by default.
+        [Default: False]
+        type: bool
+
+
+AUTHOR: Kristian Feldsam (@feldsam)
+
+NAME: opennebula
+
+VERSION_ADDED_COLLECTION: community.general
+
+EXAMPLES:
+
+# inventory_opennebula.yml file in YAML format
+# Example command line: ansible-inventory --list -i inventory_opennebula.yml
+
+# Pass a label filter to the API
+plugin: community.general.opennebula
+api_url: https://opennebula:2633/RPC2
+filter_by_label: Cache
+
